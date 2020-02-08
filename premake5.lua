@@ -23,4 +23,4 @@ project "ImGui"
         systemversion "latest"
         cppdialect "C++17"
         staticruntime "On"
-project "*"
+	filter {}
