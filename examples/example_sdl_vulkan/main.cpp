@@ -1,11 +1,12 @@
-// dear imgui: standalone example application for SDL2 + Vulkan
-// If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
+// Dear ImGui: standalone example application for SDL2 + Vulkan
+// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
+// Read online: https://github.com/ocornut/imgui/tree/master/docs
 
 // Important note to the reader who wish to integrate imgui_impl_vulkan.cpp/.h in their own engine/app.
 // - Common ImGui_ImplVulkan_XXX functions and structures are used to interface with imgui_impl_vulkan.cpp/.h.
-//   You will use those if you want to use this rendering back-end in your engine/app.
+//   You will use those if you want to use this rendering backend in your engine/app.
 // - Helper ImGui_ImplVulkanH_XXX functions and structures are only used by this example (main.cpp) and by
-//   the back-end itself (imgui_impl_vulkan.cpp), but should PROBABLY NOT be used by your own engine/app code.
+//   the backend itself (imgui_impl_vulkan.cpp), but should PROBABLY NOT be used by your own engine/app code.
 // Read comments in imgui_impl_vulkan.h.
 
 #include "imgui.h"
@@ -64,10 +65,9 @@ static void SetupVulkan(const char** extensions, uint32_t extensions_count)
         create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         create_info.enabledExtensionCount = extensions_count;
         create_info.ppEnabledExtensionNames = extensions;
-
 #ifdef IMGUI_VULKAN_DEBUG_REPORT
-        // Enabling multiple validation layers grouped as LunarG standard validation
-        const char* layers[] = { "VK_LAYER_LUNARG_standard_validation" };
+        // Enabling validation layers
+        const char* layers[] = { "VK_LAYER_KHRONOS_validation" };
         create_info.enabledLayerCount = 1;
         create_info.ppEnabledLayerNames = layers;
 
@@ -374,7 +374,7 @@ int main(int, char**)
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
 
-    // Setup Platform/Renderer bindings
+    // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForVulkan(window);
     ImGui_ImplVulkan_InitInfo init_info = {};
     init_info.Instance = g_Instance;
@@ -455,6 +455,8 @@ int main(int, char**)
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT)
                 done = true;
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
+                done = true;
         }
 
         // Resize swap chain?
@@ -519,7 +521,10 @@ int main(int, char**)
         const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
         if (!is_minimized)
         {
-            memcpy(&wd->ClearValue.color.float32[0], &clear_color, 4 * sizeof(float));
+            wd->ClearValue.color.float32[0] = clear_color.x * clear_color.w;
+            wd->ClearValue.color.float32[1] = clear_color.y * clear_color.w;
+            wd->ClearValue.color.float32[2] = clear_color.z * clear_color.w;
+            wd->ClearValue.color.float32[3] = clear_color.w;
             FrameRender(wd, draw_data);
             FramePresent(wd);
         }

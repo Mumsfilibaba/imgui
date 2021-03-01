@@ -1,5 +1,6 @@
-// dear imgui: standalone example application for DirectX 10
-// If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
+// Dear ImGui: standalone example application for DirectX 10
+// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
+// Read online: https://github.com/ocornut/imgui/tree/master/docs
 
 #include "imgui.h"
 #include "imgui_impl_win32.h"
@@ -54,7 +55,7 @@ int main(int, char**)
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
 
-    // Setup Platform/Renderer bindings
+    // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX10_Init(g_pd3dDevice);
 
@@ -139,8 +140,9 @@ int main(int, char**)
 
         // Rendering
         ImGui::Render();
+        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
         g_pd3dDevice->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
-        g_pd3dDevice->ClearRenderTargetView(g_mainRenderTargetView, (float*)&clear_color);
+        g_pd3dDevice->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
         ImGui_ImplDX10_RenderDrawData(ImGui::GetDrawData());
 
         g_pSwapChain->Present(1, 0); // Present with vsync
